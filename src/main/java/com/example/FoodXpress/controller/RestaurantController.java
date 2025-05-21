@@ -100,10 +100,12 @@ public class RestaurantController {
 
         Optional<Restaurant> restaurant = restaurantRepo.findByUser(user.get());
         if (restaurant.isPresent()) {
-            restaurant.get().setUser(user.get());
+            restaurant.get().setUser(user.get()); // ✅ ensure user.userId is included in frontend
             return ResponseEntity.ok(restaurant.get());
         }
 
         return ResponseEntity.notFound().build();
     }
+
 }
+

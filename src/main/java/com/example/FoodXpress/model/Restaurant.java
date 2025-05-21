@@ -1,11 +1,14 @@
 package com.example.FoodXpress.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Table(name = "restaurants")
@@ -47,5 +50,10 @@ public class Restaurant {
     @JoinColumn(name = "userId", referencedColumnName = "userId")
     @JsonBackReference
     private User user;
+
+
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<MenuItem> menuItems;
 
 }
