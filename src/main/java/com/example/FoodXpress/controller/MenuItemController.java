@@ -7,10 +7,14 @@ import com.example.FoodXpress.repository.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+
+import java.io.File;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/menu")
@@ -24,13 +28,39 @@ public class MenuItemController {
     private RestaurantRepository restaurantRepo;
 
     @PostMapping("/add/{restaurantId}")
-    public ResponseEntity<?> addMenuItem(@PathVariable Long restaurantId, @RequestBody MenuItem menuItem) {
-        Optional<Restaurant> restaurant = restaurantRepo.findById(restaurantId);
-        if (restaurant.isEmpty()) return ResponseEntity.notFound().build();
+    public ResponseEntity<?> addMenuItem(
+            @PathVariable Long restaurantId,
+            @RequestParam("dishName") String dishName,
+            @RequestParam("description") String description,
+            @RequestParam("price") Double price,
+            @RequestParam("available") boolean available,
+            @RequestParam("image") MultipartFile imageFile
+    ) {
+        Optional<Restaurant> restaurantOpt = restaurantRepo.findById(restaurantId);
+        if (restaurantOpt.isEmpty()) return ResponseEntity.notFound().build();
 
-        menuItem.setRestaurant(restaurant.get());
-        return ResponseEntity.ok(menuItemRepo.save(menuItem));
+        try {
+            String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+            String uploadPath = System.getProperty("user.dir") + "/uploads/menu_images/" + fileName;
+//            File dest = new File(uploadPath);
+//            dest.getParentFile().mkdirs();
+            imageFile.transferTo(new File(uploadPath));
+
+            MenuItem item = new MenuItem();
+            item.setDishName(dishName);
+            item.setDescription(description);
+            item.setPrice(price);
+            item.setAvailable(available);
+            item.setImagePath(fileName);
+            item.setRestaurant(restaurantOpt.get());
+
+            return ResponseEntity.ok(menuItemRepo.save(item));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Failed to upload menu item");
+        }
     }
+
 
     @GetMapping("/restaurant/{restaurantId}")
     public List<MenuItem> getRestaurantMenu(@PathVariable Long restaurantId) {

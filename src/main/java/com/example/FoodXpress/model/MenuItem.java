@@ -21,6 +21,10 @@ public class MenuItem {
     private Double price;
     private boolean available = true;
 
+    @Column
+    private String imagePath;
+
+
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "restaurant_id")

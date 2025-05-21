@@ -50,14 +50,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(Customizer.withDefaults()) // ✅ add this line
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/restaurant/**").hasRole("RESTAURANT")
-                        .requestMatchers("/api/menu/**").hasRole("RESTAURANT") // ✅ correct
+                        .requestMatchers("/api/menu/**").hasRole("RESTAURANT")
+                        .requestMatchers("/menu-images/**").permitAll() // ✅ ALLOW static access
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess
@@ -67,5 +68,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 }
